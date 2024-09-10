@@ -1,9 +1,32 @@
 "use client";
 
-import { GetManyResponse, useMany, useNavigation } from "@refinedev/core";
-import { useTable } from "@refinedev/react-table";
-import { ColumnDef, flexRender } from "@tanstack/react-table";
 import React from "react";
+import { useTable } from "@refinedev/react-table";
+import { type ColumnDef, flexRender } from "@tanstack/react-table";
+import { type GetManyResponse, useMany, useNavigation } from "@refinedev/core";
+import {
+  List,
+  ShowButton,
+  EditButton,
+  DeleteButton,
+  DateField,
+} from "@refinedev/chakra-ui";
+
+import {
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  TableContainer,
+  HStack,
+  Text,
+  Select,
+} from "@chakra-ui/react";
+import { Pagination } from "@components/pagination/pages";
+import { ColumnSorter } from "@components/table/columnSorter";
+import { ColumnFilter } from "@components/table/columnFilter";
 
 export default function BlogPostList() {
   const columns = React.useMemo<ColumnDef<any>[]>(
@@ -64,29 +87,23 @@ export default function BlogPostList() {
         header: "Actions",
         cell: function render({ getValue }) {
           return (
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                flexWrap: "wrap",
-                gap: "4px",
-              }}
-            >
-              <button
-                onClick={() => {
-                  show("blog_posts", getValue() as string);
-                }}
-              >
-                Show
-              </button>
-              <button
-                onClick={() => {
-                  edit("blog_posts", getValue() as string);
-                }}
-              >
-                Edit
-              </button>
-            </div>
+            <HStack>
+              <ShowButton
+                hideText
+                size="sm"
+                recordItemId={getValue() as number}
+              />
+              <EditButton
+                hideText
+                size="sm"
+                recordItemId={getValue() as number}
+              />
+              <DeleteButton
+                hideText
+                size="sm"
+                recordItemId={getValue() as number}
+              />
+            </HStack>
           );
         },
       },
@@ -101,6 +118,9 @@ export default function BlogPostList() {
     getRowModel,
     setOptions,
     refineCore: {
+      setCurrent,
+      pageCount,
+      current,
       tableQueryResult: { data: tableData },
     },
     getState,
@@ -116,7 +136,7 @@ export default function BlogPostList() {
   });
 
   const { data: categoryData } = useMany({
-    resource: "categories",
+    resource: "blog-posts",
     ids:
       tableData?.data?.map((item) => item?.category?.id).filter(Boolean) ?? [],
     queryOptions: {
@@ -133,96 +153,51 @@ export default function BlogPostList() {
   }));
 
   return (
-    <div style={{ padding: "16px" }}>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <h1>{"List"}</h1>
-        <button onClick={() => create("blog_posts")}>{"Create"}</button>
-      </div>
-      <div style={{ maxWidth: "100%", overflowY: "scroll" }}>
-        <table>
-          <thead>
+    <List>
+      <TableContainer whiteSpace="pre-line">
+        <Table variant="simple">
+          <Thead>
             {getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
+              <Tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <th key={header.id}>
-                    {!header.isPlaceholder &&
-                      flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                  </th>
+                  <Th key={header.id}>
+                    {!header.isPlaceholder && (
+                      <HStack spacing="2">
+                        <Text>
+                          {flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                        </Text>
+                        <HStack spacing="2">
+                          <ColumnSorter column={header.column} />
+                          <ColumnFilter column={header.column} />
+                        </HStack>
+                      </HStack>
+                    )}
+                  </Th>
                 ))}
-              </tr>
+              </Tr>
             ))}
-          </thead>
-          <tbody>
+          </Thead>
+          <Tbody>
             {getRowModel().rows.map((row) => (
-              <tr key={row.id}>
+              <Tr key={row.id}>
                 {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id}>
+                  <Td key={cell.id}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
+                  </Td>
                 ))}
-              </tr>
+              </Tr>
             ))}
-          </tbody>
-        </table>
-      </div>
-      <div style={{ marginTop: "12px" }}>
-        <button
-          onClick={() => setPageIndex(0)}
-          disabled={!getCanPreviousPage()}
-        >
-          {"<<"}
-        </button>
-        <button onClick={() => previousPage()} disabled={!getCanPreviousPage()}>
-          {"<"}
-        </button>
-        <button onClick={() => nextPage()} disabled={!getCanNextPage()}>
-          {">"}
-        </button>
-        <button
-          onClick={() => setPageIndex(getPageCount() - 1)}
-          disabled={!getCanNextPage()}
-        >
-          {">>"}
-        </button>
-        <span>
-          <strong>
-            {" "}
-            {getState().pagination.pageIndex + 1} / {getPageCount()}{" "}
-          </strong>
-        </span>
-        <span>
-          | {"Go"}:{" "}
-          <input
-            type="number"
-            defaultValue={getState().pagination.pageIndex + 1}
-            onChange={(e) => {
-              const page = e.target.value ? Number(e.target.value) - 1 : 0;
-              setPageIndex(page);
-            }}
-          />
-        </span>{" "}
-        <select
-          value={getState().pagination.pageSize}
-          onChange={(e) => {
-            setPageSize(Number(e.target.value));
-          }}
-        >
-          {[10, 20, 30, 40, 50].map((pageSize) => (
-            <option key={pageSize} value={pageSize}>
-              {"Show"} {pageSize}
-            </option>
-          ))}
-        </select>
-      </div>
-    </div>
+          </Tbody>
+        </Table>
+      </TableContainer>
+      <Pagination
+        current={current}
+        pageCount={pageCount}
+        setCurrent={setCurrent}
+      />
+    </List>
   );
 }

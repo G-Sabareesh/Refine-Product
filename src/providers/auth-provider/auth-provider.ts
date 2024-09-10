@@ -11,7 +11,6 @@ import {
   rmrole,
   rmtoken,
 } from "@providers/local-storage/removelocal";
-import { cookies } from "next/headers";
 import Cookies from "js-cookie";
 
 export const TOKEN_KEY = "refine-auth";
@@ -68,6 +67,7 @@ export const authProvider: AuthProvider = {
     rmid();
     rmrole();
     rmtoken();
+    Cookies.remove("auth");
     return {
       success: true,
       redirectTo: "/login",
