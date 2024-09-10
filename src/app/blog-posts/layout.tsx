@@ -1,3 +1,4 @@
+import { Header } from "@components/header";
 import { Layout as BaseLayout } from "@components/layout";
 import { authProviderServer } from "@providers/auth-provider";
 import { ThemedLayoutV2 } from "@refinedev/chakra-ui";
@@ -11,7 +12,7 @@ export default async function Layout({ children }: React.PropsWithChildren) {
     return redirect(data?.redirectTo || "/login");
   }
 
-  return <ThemedLayoutV2>{children}</ThemedLayoutV2>;
+  return <ThemedLayoutV2 Header={Header}>{children}</ThemedLayoutV2>;
 }
 
 async function getData() {
