@@ -1,6 +1,8 @@
-import { AuthPage } from "@components/auth-page";
+// import { AuthPage } from "@components/auth-page";
+import { AuthPage } from "@refinedev/chakra-ui";
 import { authProviderServer } from "@providers/auth-provider";
 import { redirect } from "next/navigation";
+import { title } from "process";
 
 export default async function Login() {
   const data = await getData();
@@ -9,7 +11,14 @@ export default async function Login() {
     redirect(data?.redirectTo || "/");
   }
 
-  return <AuthPage type="login" />;
+  return (
+    <AuthPage
+      type="login"
+      forgotPasswordLink="false"
+      registerLink="false"
+      title=""
+    />
+  );
 }
 
 async function getData() {

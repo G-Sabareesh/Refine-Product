@@ -13,30 +13,39 @@
     "refine": "refine"
   },
   "dependencies": {
+    "@chakra-ui/next-js": "^2.2.0",
+    "@chakra-ui/react": "^2.8.2",
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "@pankod/refine": "^2.7.8",
+    "@refinedev/chakra-ui": "^2.32.0",
     "@refinedev/cli": "^2.16.21",
     "@refinedev/core": "^4.47.1",
     "@refinedev/devtools": "^1.1.32",
-    "@refinedev/nextjs-router": "^6.0.0",
     "@refinedev/kbar": "^1.3.6",
+    "@refinedev/nextjs-router": "^6.0.0",
+    "@refinedev/react-hook-form": "^4.9.0",
+    "@refinedev/react-table": "^5.6.13",
+    "@refinedev/simple-rest": "^5.0.1",
+    "@tabler/icons-react": "^3.15.0",
+    "@tanstack/react-table": "^8.20.5",
+    "framer-motion": "^11.5.4",
+    "js-cookie": "^3.0.5",
     "next": "^14.1.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "@refinedev/simple-rest": "^5.0.1",
-    "@refinedev/react-hook-form": "^4.8.14",
-    "@refinedev/react-table": "^5.6.6",
-    "@tanstack/react-table": "^8.2.6",
-    "js-cookie": "^3.0.5"
+    "react-hook-form": "^7.53.0"
   },
   "devDependencies": {
+    "@types/js-cookie": "^3.0.6",
+    "@types/node": "^18.16.2",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
-    "@types/node": "^18.16.2",
     "@typescript-eslint/parser": "^6.21.0",
-    "typescript": "^5.4.2",
     "cross-env": "^7.0.3",
     "eslint": "^8",
     "eslint-config-next": "^14.1.0",
-    "@types/js-cookie": "^3.0.6"
+    "typescript": "^5.4.2"
   },
   "refine": {
     "projectId": "361yPh-CVndCE-W01UqO"

@@ -1,57 +1,85 @@
 "use client";
 
 import type { AuthProvider } from "@refinedev/core";
+import axios from "axios";
+import { GET_CURRENT_USER, LOGIN } from "../const";
+import { setlocal } from "@providers/local-storage/setlocal";
+import { id, needsReload, token } from "@providers/local-storage/getlocal";
+import {
+  rmid,
+  rmneedsReload,
+  rmrole,
+  rmtoken,
+} from "@providers/local-storage/removelocal";
+import { cookies } from "next/headers";
 import Cookies from "js-cookie";
 
-const mockUsers = [
-  {
-    name: "John Doe",
-    email: "johndoe@mail.com",
-    roles: ["admin"],
-    avatar: "https://i.pravatar.cc/150?img=1",
-  },
-  {
-    name: "Jane Doe",
-    email: "janedoe@mail.com",
-    roles: ["editor"],
-    avatar: "https://i.pravatar.cc/150?img=1",
-  },
-];
-
+export const TOKEN_KEY = "refine-auth";
 export const authProvider: AuthProvider = {
-  login: async ({ email, username, password, remember }) => {
-    // Suppose we actually send a request to the back end here.
-    const user = mockUsers[0];
+  login: async ({ email, password }) => {
+    try {
+      const user_name = email.split("@")[0];
+      const response = await axios.post(
+        `${LOGIN}`,
+        {
+          user_name,
+          password,
+        },
+        {
+          headers: {
+            "ngrok-skip-browser-warning": "true",
+          },
+        }
+      );
 
-    if (user) {
-      Cookies.set("auth", JSON.stringify(user), {
-        expires: 30, // 30 days
-        path: "/",
-      });
+      const { token, role, user_id, ...user } = response.data;
+      if (token) {
+        // localStorage.setItem(TOKEN_KEY, token);
+        // localStorage.setItem("role", role);
+        // localStorage.setItem("id", user_id);
+        // cookies().set("auth", token);
+        Cookies.set("auth", token);
+        setlocal({ token, role, id: user_id, needsReload: "true" });
+        return {
+          success: true,
+          redirectTo: "/",
+        };
+      }
+
       return {
-        success: true,
-        redirectTo: "/",
+        success: false,
+        error: {
+          name: "LoginError",
+          message: "Invalid username or password",
+        },
+      };
+    } catch (error) {
+      console.log("error", error);
+      return {
+        success: false,
+        error: {
+          name: "LoginError",
+          message: "Invalid username or password",
+        },
       };
     }
-
-    return {
-      success: false,
-      error: {
-        name: "LoginError",
-        message: "Invalid username or password",
-      },
-    };
   },
   logout: async () => {
-    Cookies.remove("auth", { path: "/" });
+    rmid();
+    rmrole();
+    rmtoken();
     return {
       success: true,
       redirectTo: "/login",
     };
   },
   check: async () => {
-    const auth = Cookies.get("auth");
-    if (auth) {
+    if (token()) {
+      console.log(token());
+      if (needsReload() === "true") {
+        rmneedsReload();
+        window.location.reload();
+      }
       return {
         authenticated: true,
       };
@@ -59,33 +87,43 @@ export const authProvider: AuthProvider = {
 
     return {
       authenticated: false,
-      logout: true,
       redirectTo: "/login",
     };
   },
-  getPermissions: async () => {
-    const auth = Cookies.get("auth");
-    if (auth) {
-      const parsedUser = JSON.parse(auth);
-      return parsedUser.roles;
-    }
-    return null;
-  },
+  getPermissions: async () => null,
   getIdentity: async () => {
-    const auth = Cookies.get("auth");
-    if (auth) {
-      const parsedUser = JSON.parse(auth);
-      return parsedUser;
+    try {
+      const response = await axios.get(`${GET_CURRENT_USER}${id()}`, {
+        headers: {
+          Authorization: `Bearer ${token()}`,
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
+
+      if (response?.data) {
+        return {
+          id: 1,
+          name: `${response?.data?.data?.full_name}`,
+          avatar: "https://i.pravatar.cc/300",
+        };
+      }
+      return null;
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        // Redirect to the login page if 401 Unauthorized
+        window.location.href = "/login";
+      }
+
+      return null;
     }
-    return null;
   },
   onError: async (error) => {
-    if (error.response?.status === 401) {
+    console.log(error);
+    if (error.status == 401) {
       return {
         logout: true,
       };
     }
-
     return { error };
   },
 };

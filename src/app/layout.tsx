@@ -1,13 +1,20 @@
-import { DevtoolsProvider } from "@providers/devtools";
-import { GitHubBanner, Refine } from "@refinedev/core";
+import { Refine } from "@refinedev/core";
 import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
 import routerProvider from "@refinedev/nextjs-router";
 import { Metadata } from "next";
-import React, { Suspense } from "react";
+import React, { Suspense, useState } from "react";
 
 import { authProvider } from "@providers/auth-provider";
 import { dataProvider } from "@providers/data-provider";
 import "@styles/global.css";
+
+import {
+  RefineThemes,
+  ThemedLayoutV2,
+  refineTheme,
+} from "@refinedev/chakra-ui";
+import { ChakraProvider } from "@chakra-ui/react";
+import { customTheme } from "./customThemes";
 
 export const metadata: Metadata = {
   title: "Refine",
@@ -26,9 +33,10 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <Suspense>
-          <GitHubBanner />
+          {/* <GitHubBanner /> */}
           <RefineKbarProvider>
-            <DevtoolsProvider>
+            {/* <DevtoolsProvider> */}
+            <ChakraProvider theme={customTheme}>
               <Refine
                 routerProvider={routerProvider}
                 dataProvider={dataProvider}
@@ -62,10 +70,14 @@ export default function RootLayout({
                   projectId: "361yPh-CVndCE-W01UqO",
                 }}
               >
+                {/* <ThemedLayoutV2> */}
+
                 {children}
+                {/* </ThemedLayoutV2> */}
                 <RefineKbar />
               </Refine>
-            </DevtoolsProvider>
+            </ChakraProvider>
+            {/* </DevtoolsProvider> */}
           </RefineKbarProvider>
         </Suspense>
       </body>
